@@ -229,7 +229,7 @@ const widgetHTML = `
     <!-- Conteneur du widget avec SVG -->
     <div class="floating-widget-container">
         <a href="https://www.rentiteasy.be/fr" class="widget-image-link">
-         <img src="logo_rentiteasy.png" alt="Logo Rentiteasy" class="widget-image">
+         <img src="https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_rentiteasy.png" alt="Logo Rentiteasy" class="widget-image">
         </a>
         <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
             <!-- Forme du widget avec un trou réellement traversable -->
