@@ -228,8 +228,8 @@ const selectedAvatars = shuffleArray(utilisateurs).slice(0, 3);
 const widgetHTML = `
     <!-- Conteneur du widget avec SVG -->
     <div class="floating-widget-container">
-        <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" class="widget-image-link">
-            <img src="logo_cléa.jpg" alt="Logo Cléa" class="widget-image">
+        <a href="https://www.rentiteasy.be/fr" class="widget-image-link">
+            <img src="logo_rentiteasy.png" alt="Logo Rentiteasy" class="widget-image">
         </a>
         <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
             <!-- Forme du widget avec un trou réellement traversable -->
