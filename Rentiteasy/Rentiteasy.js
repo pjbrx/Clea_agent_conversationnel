@@ -286,7 +286,7 @@ const widgetHTML = `
             <div class="popup-header">
                 <div>
                     <span class="online-dot"></span>
-                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" class="popup-online-text">Cléa est en ligne</a>
+                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" class="popup-online-text">Cléa est en ligne !</a>
                 </div>
                         <!-- Avatars superposés -->
                     <div class="avatar-container">
