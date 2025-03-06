@@ -317,7 +317,7 @@ shadowRoot.getElementById("close-popup").addEventListener("click", function() {
 
 // Widget ElevenLabs
 const elevenLabsWidget = document.createElement("elevenlabs-convai");
-elevenLabsWidget.setAttribute("agent-id", "uY98U5YsfR4bGJgXlAKE");
+elevenLabsWidget.setAttribute("agent-id", "vAVWpiIxaI6uJPpPzRy4");
 document.body.appendChild(elevenLabsWidget);
 
 const script = document.createElement("script");
