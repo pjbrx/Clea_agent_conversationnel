@@ -1,3 +1,13 @@
+// ========= ADAPTER LES LIGNES 240-241 et 320 ========= \\
+
+
+// 1) Créer le conteneur et l'ajouter au body
+const widgetContainer = document.createElement('div');
+document.body.appendChild(widgetContainer);
+
+// 2) Attacher le shadow root
+const shadowRoot = widgetContainer.attachShadow({ mode: 'open' });
+
 // Injecter le CSS dans le document
 const styles = `
     /* Animation de pulse */
@@ -96,11 +106,12 @@ const styles = `
 
     /* Texte "Cléa est en ligne" en bleu */
     .popup-online-text {
-        font-family: Arial, sans-serif;
-        color: #007bff;
-        font-weight: bold;
-        font-size: 12px;
-        cursor: pointer;
+        all: unset;
+        font-family: Arial, sans-serif !important;
+        color: #007bff !important;
+        font-weight: bold !important;
+        font-size: 12px !important;
+        cursor: pointer !important;
         margin-right: 5px;
     }
     /* Conteneur des avatars */
@@ -112,8 +123,8 @@ const styles = `
     }
 
     .avatar {
-        width: 24px;
-        height: 24px;
+        width: 24px !important;
+        height: 24px !important;
         border-radius: 50%;
         border: 1px solid white;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -183,8 +194,8 @@ const styles = `
         top: 39.5px;
         left: 17%;
         transform: translateX(-50%);
-        width: 38px;
-        height: 38px;
+        width: 38px !important;
+        height: 38px !important;
         border-radius: 50%;
         border: 0.5px solid black;
         object-fit: cover;
@@ -206,7 +217,8 @@ const styles = `
 const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);
+shadowRoot.appendChild(styleSheet);
+
 
 // Sélection aléatoire des avatars
 const utilisateurs = [
@@ -228,8 +240,8 @@ const selectedAvatars = shuffleArray(utilisateurs).slice(0, 3);
 const widgetHTML = `
     <!-- Conteneur du widget avec SVG -->
     <div class="floating-widget-container">
-        <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" class="widget-image-link">
-            <img src="logo_cléa.jpg" alt="Logo Cléa" class="widget-image">
+        <a href="https://www.expansiontv.be/" class="widget-image-link">
+            <img src="https://pjbrx.github.io/Clea_agent_conversationnel/ExpansionTV/logo_ExpansionTV.png" alt="Logo ExpansionTV" class="widget-image">
         </a>
         <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
             <!-- Forme du widget avec un trou réellement traversable -->
@@ -277,7 +289,7 @@ const widgetHTML = `
             <div class="popup-header">
                 <div>
                     <span class="online-dot"></span>
-                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" class="popup-online-text">Cléa est en ligne</a>
+                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" class="popup-online-text">Cléa est en ligne !</a>
                 </div>
                         <!-- Avatars superposés -->
                     <div class="avatar-container">
@@ -289,15 +301,21 @@ const widgetHTML = `
 `;
 
 // Injecter le HTML dans le body
-document.body.insertAdjacentHTML("beforeend", widgetHTML);
+// ❌ Retirer cette ligne (ou commenter)
+// document.body.insertAdjacentHTML("beforeend", widgetHTML);
+
+// ✅ Ajouter :
+const widgetWrapper = document.createElement('div');
+widgetWrapper.innerHTML = widgetHTML;
+shadowRoot.appendChild(widgetWrapper);
 
 // Script pour gérer le popup
 setTimeout(function() {
-    document.getElementById("popup-message").style.display = "block";
+    shadowRoot.getElementById("popup-message").style.display = "block";
 }, 5000); // Afficher le popup après 5 secondes
 
-document.getElementById("close-popup").addEventListener("click", function() {
-    document.getElementById("popup-message").style.display = "none";
+shadowRoot.getElementById("close-popup").addEventListener("click", function() {
+    shadowRoot.getElementById("popup-message").style.display = "none";
 });
 
 // Widget ElevenLabs
