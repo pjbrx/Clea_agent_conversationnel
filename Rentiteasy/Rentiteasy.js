@@ -1,3 +1,6 @@
+// ========= ADAPTER LES LIGNES 240-241 et 320 ========= \\
+
+
 // 1) Créer le conteneur et l'ajouter au body
 const widgetContainer = document.createElement('div');
 document.body.appendChild(widgetContainer);
