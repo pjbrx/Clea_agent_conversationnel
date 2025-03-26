@@ -335,7 +335,7 @@ document.body.appendChild(script);
 
 (function() {
     // Vérification pour éviter les doublons si le script est chargé plusieurs fois
-    if (document.querySelector('.custom-popup-container')) {
+    if (shadowRoot.querySelector('.custom-popup-container')) {
         return;
     }
 
@@ -726,7 +726,7 @@ document.body.appendChild(script);
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.innerText = styles;
-    document.head.appendChild(styleSheet);
+    shadowRoot.appendChild(styleSheet);
 
     // Liste des avatars disponibles
     const utilisateurs = [
@@ -804,18 +804,18 @@ document.body.appendChild(script);
         </div>
     `;
     
-    document.body.appendChild(widgetContainer);
+    shadowRoot.appendChild(widgetContainer);
 
     function setupWidgetEvents() {
-        const toggleButton = document.getElementById("custom-popup-toggle");
-        const popup = document.getElementById("custom-popup-window");
+        const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+        const popup = shadowRoot.getElementById("custom-popup-window");
         // Fermer le popup au démarrage
         popup.style.display = "none";
 
-        const toggleIcon = document.getElementById("toggle-icon");
-        const textarea = document.getElementById("custom-popup-textarea");
-        const sendButton = document.getElementById("custom-popup-send");
-        const chatBody = document.getElementById("custom-popup-body");
+        const toggleIcon = shadowRoot.getElementById("toggle-icon");
+        const textarea = shadowRoot.getElementById("custom-popup-textarea");
+        const sendButton = shadowRoot.getElementById("custom-popup-send");
+        const chatBody = shadowRoot.getElementById("custom-popup-body");
 
         // Récupérer l'ID de conversation stocké
         const currentConversationId = sessionStorage.getItem('chatConversationId');
