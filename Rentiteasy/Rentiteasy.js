@@ -791,7 +791,7 @@ document.body.appendChild(script);
                 <div class="textarea-container">
                     <textarea id="custom-popup-textarea" class="custom-popup-textarea" placeholder="Écrivez ici..."></textarea>
                     <button id="custom-popup-send" class="custom-popup-send" style="display: none;">
-                        <img src="/send_button.png" alt="Envoyer" class="send-icon">
+                        <img src="https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/send_button.png" alt="Envoyer" class="send-icon">
                     </button>
                 </div>
                 <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
