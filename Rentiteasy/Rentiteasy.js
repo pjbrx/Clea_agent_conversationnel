@@ -1017,7 +1017,6 @@ document.body.appendChild(script);
                     // Puis on applique la mise en forme en paragraphes
                     const formatted = formatResponse(linkified);
                     element.innerHTML = formatted;
-                    if (callback) callback();
                 }
             }, interval);
         }
