@@ -726,7 +726,7 @@ document.body.appendChild(script);
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.innerText = styles;
-    textShadowRoot.appendChild(styleSheet);
+    document.head.appendChild(styleSheet);
 
     // Liste des avatars disponibles
     const utilisateurs = [
@@ -747,9 +747,7 @@ document.body.appendChild(script);
 
     // Sélectionner 4 avatars aléatoires
     const selectedAvatars = shuffleArray(utilisateurs).slice(0, 4);
-    const textWidgetContainer = document.createElement('div');
-    document.body.appendChild(textWidgetContainer);
-    
+    const widgetContainer = document.createElement('div');
     widgetContainer.className = 'custom-popup-container';
     
     widgetContainer.innerHTML = `
@@ -806,7 +804,7 @@ document.body.appendChild(script);
         </div>
     `;
     
-    textShadowRoot.appendChild(widgetContainer);
+    document.body.appendChild(widgetContainer);
 
     function setupWidgetEvents() {
         const toggleButton = document.getElementById("custom-popup-toggle");
