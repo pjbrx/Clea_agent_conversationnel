@@ -943,12 +943,14 @@ document.body.appendChild(script);
             }, 2500);
             
             try {
+                const agentId = elevenLabsWidget.getAttribute("agent-id");
                 const response = await fetch(WEBHOOK_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         message: messageText,
                         conversationId: currentConversationId,
+                        agentId: agentId,
                         timestamp: new Date().toISOString(),
                         userInfo: {
                             browser: navigator.userAgent,
@@ -1078,7 +1080,7 @@ document.body.appendChild(script);
             toggleButton.classList.remove("red");
             // Vous pouvez aussi modifier l'image si besoin, de la même manière que dans l'événement "click" du toggleButton
             const toggleIcon = shadowRoot.getElementById("toggle-icon");
-            toggleIcon.src = "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_chat_final.webp";
+            toggleIcon.src = "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp";
         });
         
         
