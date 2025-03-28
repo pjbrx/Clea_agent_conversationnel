@@ -758,7 +758,7 @@ document.body.appendChild(script);
     
     widgetContainer.innerHTML = `
     <button id="custom-popup-toggle" class="custom-popup-button custom-popup-button-position" aria-label="Ouvrir le chat Cléa">
-        <img id="toggle-icon" src="https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_chat_final.webp" alt="Icône Cléa">
+        <img id="toggle-icon" src="https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp" alt="Icône Cléa">
     </button>
         <div id="custom-popup-window" class="custom-popup-window">
             <div class="custom-popup-header">
@@ -798,7 +798,7 @@ document.body.appendChild(script);
                 <div class="textarea-container">
                     <textarea id="custom-popup-textarea" class="custom-popup-textarea" placeholder="Écrivez ici..."></textarea>
                     <button id="custom-popup-send" class="custom-popup-send" style="display: none;">
-                        <img src="https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/send_button.png" alt="Envoyer" class="send-icon">
+                        <img src="https://pjbrx.github.io/Clea_agent_conversationnel/send_button.png" alt="Envoyer" class="send-icon">
                     </button>
                 </div>
                 <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
@@ -853,8 +853,8 @@ document.body.appendChild(script);
             popup.style.display = popup.style.display === "block" ? "none" : "block";
             toggleButton.classList.toggle("red");
             toggleIcon.src = popup.style.display === "block"
-            ? "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_chat_final.webp" // même logo ou autre version pour "fermé"
-            : "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_chat_final.webp";
+            ? "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp" // même logo ou autre version pour "fermé"
+            : "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp";
             // Cacher le bouton d'envoi à l'ouverture du popup
             if (popup.style.display === "block") {
                 sendButton.style.display = "none";
