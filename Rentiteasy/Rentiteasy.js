@@ -1071,6 +1071,16 @@ document.body.appendChild(script);
         shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
             shadowRoot.getElementById("custom-popup-window").style.display = "none";
         });
+        shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
+            shadowRoot.getElementById("custom-popup-window").style.display = "none";
+            // Rétablir l'état du bouton de chat
+            const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+            toggleButton.classList.remove("red");
+            // Vous pouvez aussi modifier l'image si besoin, de la même manière que dans l'événement "click" du toggleButton
+            const toggleIcon = shadowRoot.getElementById("toggle-icon");
+            toggleIcon.src = "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_chat_final.webp";
+        });
+        
         
     }
 
