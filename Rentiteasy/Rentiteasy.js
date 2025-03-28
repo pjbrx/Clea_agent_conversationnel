@@ -148,6 +148,12 @@ const styles = `
     .popup-close:hover {
         color: red;
     }
+    #close-chatbot {
+        right: auto;
+        left: 395px;
+        font-size: 24px; /* ou la taille souhaitée */
+    }
+
 
     /* Conteneur principal du widget */
     .floating-widget-container {
@@ -757,6 +763,7 @@ document.body.appendChild(script);
         <div id="custom-popup-window" class="custom-popup-window">
             <div class="custom-popup-header">
                 Des Questions ? Discutons !
+                    <span id="close-chatbot" class="popup-close">&times;</span>
                 <div style="display: flex; justify-content: center; align-items: center;">
                     <div class="online-status">
                         <span class="online-dot"></span>
@@ -1059,6 +1066,10 @@ document.body.appendChild(script);
             } else {
                 sendButton.style.display = "none";
             }
+        });
+
+        shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
+            shadowRoot.getElementById("custom-popup-window").style.display = "none";
         });
         
     }
