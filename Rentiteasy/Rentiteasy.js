@@ -1021,6 +1021,7 @@ document.body.appendChild(script);
         if (history.length > 0) {
             restoreChat();
         }
+        else{popup.style.display = "none"}
         const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
         const popup = shadowRoot.getElementById("custom-popup-window");
         // Fermer le popup au démarrage
