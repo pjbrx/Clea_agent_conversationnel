@@ -1027,9 +1027,10 @@ document.body.appendChild(script);
     }
 
     function setupWidgetEvents() {
+        const popup = shadowRoot.getElementById("custom-popup-window");
         restoreChat();
         const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
-        //const popup = shadowRoot.getElementById("custom-popup-window");
+        
         // Fermer le popup au démarrage
         //popup.style.display = "none";
 
