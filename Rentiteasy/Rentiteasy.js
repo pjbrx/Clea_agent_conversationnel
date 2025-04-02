@@ -1017,13 +1017,14 @@ document.body.appendChild(script);
 
     function setupWidgetEvents() {
         const history = loadChatHistory();
+        const popup = shadowRoot.getElementById("custom-popup-window");
         // Si l'historique n'est pas vide, restaure le chat
         if (history.length > 0) {
             restoreChat();
         }
         else{popup.style.display = "none"}
         const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
-        const popup = shadowRoot.getElementById("custom-popup-window");
+        
         // Fermer le popup au démarrage
         //popup.style.display = "none";
 
