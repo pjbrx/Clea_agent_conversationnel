@@ -942,23 +942,11 @@ document.body.appendChild(script);
             popup.style.display = "none";
         }
         // Restaure l'historique de conversation
-    const history = loadChatHistory();
-    const chatBody = shadowRoot.getElementById("custom-popup-body");
-    // Efface le contenu actuel
-    chatBody.innerHTML = "";
+        const history = loadChatHistory();
+        const chatBody = shadowRoot.getElementById("custom-popup-body");
+        // Efface le contenu actuel
+        chatBody.innerHTML = "";
 
-    // Si l'historique est vide, afficher le message par défaut
-    if (history.length === 0) {
-        // Crée un objet message bot par défaut
-        const defaultBotMessage = {
-            sender: "bot",
-            text: "Bonjour ! Comment puis-je vous aider ?",
-            timestamp: new Date().toISOString()
-        };
-        history.push(defaultBotMessage);
-        saveChatHistory(history);
-        history = loadChatHistory();
-    } else {
         // Variable pour stocker la date du dernier message bot affiché
         let lastBotDate = "";
         history.forEach(message => {
@@ -1019,20 +1007,20 @@ document.body.appendChild(script);
                 chatBody.appendChild(msgDiv);
             }
         });
-    }
 
-    // Restaure la position de défilement
-    chatBody.scrollTop = loadChatScroll();
+        // Restaure la position de défilement
+        chatBody.scrollTop = loadChatScroll();
 
-    // Applique la nouvelle taille de la zone de chat
-    chatBody.style.maxHeight = "calc(100% - 180px)";
-
-            
-
+        // Applique la nouvelle taille de la zone de chat
+        chatBody.style.maxHeight = "calc(100% - 180px)";
     }
 
     function setupWidgetEvents() {
-        restoreChat();
+        const history = loadChatHistory();
+        // Si l'historique n'est pas vide, restaure le chat
+        if (history.length > 0) {
+            restoreChat();
+        }
         const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
         const popup = shadowRoot.getElementById("custom-popup-window");
         // Fermer le popup au démarrage
