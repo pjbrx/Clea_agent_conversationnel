@@ -949,9 +949,14 @@ document.body.appendChild(script);
 
     // Si l'historique est vide, afficher le message par défaut
     if (history.length === 0) {
-        const defaultMessage = document.createElement("span");
-        defaultMessage.innerHTML = "Bonjour ! Comment puis-je vous aider ?";
-        chatBody.appendChild(defaultMessage);
+        // Crée un objet message bot par défaut
+        const defaultBotMessage = {
+            sender: "bot",
+            text: "Bonjour ! Comment puis-je vous aider ?",
+            timestamp: new Date().toISOString()
+        };
+        history.push(defaultBotMessage);
+        saveChatHistory(history);
     } else {
         // Variable pour stocker la date du dernier message bot affiché
         let lastBotDate = "";
