@@ -941,40 +941,37 @@ document.body.appendChild(script);
         } else {
             popup.style.display = "none";
         }
-        
         // Restaure l'historique de conversation
-        const history = loadChatHistory();
-        const chatBody = shadowRoot.getElementById("custom-popup-body");
-        // Efface le contenu actuel
-        chatBody.innerHTML = "";
-        
+    const history = loadChatHistory();
+    const chatBody = shadowRoot.getElementById("custom-popup-body");
+    // Efface le contenu actuel
+    chatBody.innerHTML = "";
+
+    // Si l'historique est vide, afficher le message par défaut
+    if (history.length === 0) {
+        const defaultMessage = document.createElement("span");
+        defaultMessage.innerHTML = "Bonjour ! Comment puis-je vous aider ?";
+        chatBody.appendChild(defaultMessage);
+    } else {
         // Variable pour stocker la date du dernier message bot affiché
         let lastBotDate = "";
-        
         history.forEach(message => {
             if (message.sender === "bot") {
-                // Formatage de la date du message (ex: "Mardi 1 avril")
                 let msgDate = new Date(message.timestamp);
                 let dateString = msgDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-                // Mettre en majuscule la première lettre
                 dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
-                
-                // Si cette date est différente de la dernière affichée, afficher la date
                 if (dateString !== lastBotDate) {
                     const dateElement = document.createElement("div");
-                    // On peut définir une classe CSS ou appliquer des styles inline
                     dateElement.className = "bot-date";
                     dateElement.style.fontSize = "10px";
                     dateElement.style.fontWeight = "bold";
                     dateElement.style.marginBottom = "5px";
                     dateElement.style.marginTop = "10px";
-                    // Ajoute la date dans le container (ici on l'insère avant le prochain message bot)
                     chatBody.appendChild(dateElement);
                     dateElement.textContent = dateString;
                     lastBotDate = dateString;
                 }
                 
-                // Créez la structure habituelle pour le message du bot
                 const botName = document.createElement("div");
                 botName.className = "bot-name";
                 botName.textContent = "Cléa";
@@ -991,17 +988,15 @@ document.body.appendChild(script);
                 botMessageContainer.className = "message bot";
                 botMessageContainer.innerHTML = formatResponse(message.text);
                 
-                // Ajoute l'heure du message dans un span
                 const timeSpan = document.createElement("span");
                 timeSpan.style.fontSize = "10px";
                 timeSpan.style.opacity = "0.6";
-                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                timeSpan.textContent = " (" + new Date(message.timestamp).toLocaleTimeString() + ")";
                 botMessageContainer.appendChild(timeSpan);
                 
                 botMessageWrapper.appendChild(botLogo);
                 botMessageWrapper.appendChild(botMessageContainer);
                 
-                // Ajoute le nom du bot et le message dans le container
                 chatBody.appendChild(botName);
                 chatBody.appendChild(botMessageWrapper);
             } else { // Pour les messages utilisateur
@@ -1012,18 +1007,22 @@ document.body.appendChild(script);
                 const timeSpan = document.createElement("span");
                 timeSpan.style.fontSize = "10px";
                 timeSpan.style.opacity = "0.6";
-                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                timeSpan.textContent = " (" + new Date(message.timestamp).toLocaleTimeString() + ")";
                 msgDiv.appendChild(timeSpan);
                 
                 chatBody.appendChild(msgDiv);
             }
         });
-        
-        // Restaure la position de défilement
-        chatBody.scrollTop = loadChatScroll();
-        
-        // Applique la nouvelle taille de la zone de chat
-        chatBody.style.maxHeight = "calc(100% - 180px)";
+    }
+
+    // Restaure la position de défilement
+    chatBody.scrollTop = loadChatScroll();
+
+    // Applique la nouvelle taille de la zone de chat
+    chatBody.style.maxHeight = "calc(100% - 180px)";
+
+            
+
     }
 
     function setupWidgetEvents() {
