@@ -957,6 +957,7 @@ document.body.appendChild(script);
         };
         history.push(defaultBotMessage);
         saveChatHistory(history);
+        history = loadChatHistory();
     } else {
         // Variable pour stocker la date du dernier message bot affiché
         let lastBotDate = "";
