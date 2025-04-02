@@ -1296,14 +1296,14 @@ document.body.appendChild(script);
         });
 
         shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
+            // Masquer le popup
             shadowRoot.getElementById("custom-popup-window").style.display = "none";
-        });
-        shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
-            shadowRoot.getElementById("custom-popup-window").style.display = "none";
+            // Mettre à jour l'état sauvegardé
+            saveChatState("closed");
             // Rétablir l'état du bouton de chat
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.remove("red");
-            // Vous pouvez aussi modifier l'image si besoin, de la même manière que dans l'événement "click" du toggleButton
+            // Optionnel : Modifier l'image du bouton si nécessaire
             const toggleIcon = shadowRoot.getElementById("toggle-icon");
             toggleIcon.src = "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp";
         });
