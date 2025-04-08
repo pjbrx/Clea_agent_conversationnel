@@ -871,10 +871,11 @@ document.body.appendChild(script);
         );
     
         // 9) Transforme les liens
-        text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function(match) {
-          let url = match.startsWith('http') ? match : 'https://' + match;
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
-        });
+        text = text.replace(/(?<!<a href=")((https?:\/\/|www\.)[^\s<]+)(?![^<]*<\/a>)/g, function(match) {
+            let url = match.startsWith('http') ? match : 'https://' + match;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
+          });
+          
     
         // 10) Découpe le texte en paragraphes via le délimiteur "|||"
         let paragraphs = text
@@ -1242,9 +1243,9 @@ document.body.appendChild(script);
                 if (index === text.length) {
                     clearInterval(timer);
                     // On transforme d'abord le texte pour rendre les liens cliquables
-                    const linkified = linkify(finalText);
+                    // const linkified = linkify(finalText);
                     // Puis on applique la mise en forme en paragraphes
-                    const formatted = formatResponse(linkified);
+                    const formatted = formatResponse(finalText);
                     element.innerHTML = formatted;
                 }
             }, interval);
