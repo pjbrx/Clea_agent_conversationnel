@@ -1380,9 +1380,7 @@ function showConsentModal(callback) {
 
         shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
             shadowRoot.getElementById("custom-popup-window").style.display = "none";
-        });
-        shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
-            shadowRoot.getElementById("custom-popup-window").style.display = "none";
+            saveChatState("closed");
             // Rétablir l'état du bouton de chat
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.remove("red");
