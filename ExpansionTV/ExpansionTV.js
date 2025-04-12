@@ -834,6 +834,50 @@ function getConversationId() {
     
     shadowRoot.appendChild(widgetContainer);
 
+    // ========= AJOUT CONSENTEMENT UTILISATEUR ========= 
+function hasAcceptedConsent() {
+    return localStorage.getItem("chatDataConsent") === "accepted";
+}
+
+function showConsentModal(callback) {
+    const modal = document.createElement("div");
+    modal.style.position = "fixed";
+    modal.style.bottom = "110px"; // juste au-dessus du bouton
+    modal.style.right = "30px";
+    modal.style.background = "white";
+    modal.style.border = "1px solid #ddd";
+    modal.style.borderRadius = "10px";
+    modal.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.1)";
+    modal.style.padding = "16px";
+    modal.style.width = "280px";
+    modal.style.zIndex = "10010";
+    modal.style.fontFamily = "Arial, sans-serif";
+
+    modal.innerHTML = `
+        <p style="margin-top: 0; font-weight: bold; font-size: 14px">Conditions d'utilisation</p>
+        <p style="font-size: 12px; margin-bottom: 12px">
+           Pour utiliser ce service, certaines données personnelles (par exemple : prénom, adresse e-mail, numéro de téléphone) peuvent être collectées et traitées afin de permettre à ExpansionTV de vous recontacter et d’assurer le suivi de votre demande. Ces données ne sont pas revendues, ni utilisées à des fins de prospection commerciale. Elles sont exclusivement utilisées dans le cadre de votre sollicitation. Vous pouvez accepter ou refuser librement cette utilisation.
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: 8px">
+            <button id="rejectConsent" style="background: transparent; border: 1px solid #ccc; border-radius: 4px; padding: 5px 10px; font-size: 12px; cursor: pointer">Refuser</button>
+            <button id="acceptConsent" style="background: #007bff; color: white; border: none; border-radius: 4px; padding: 5px 10px; font-size: 12px; cursor: pointer">Accepter</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector("#acceptConsent").addEventListener("click", () => {
+        localStorage.setItem("chatDataConsent", "accepted");
+        document.body.removeChild(modal);
+        callback(true);
+    });
+
+    modal.querySelector("#rejectConsent").addEventListener("click", () => {
+        localStorage.setItem("chatDataConsent", "rejected");
+        document.body.removeChild(modal);
+        callback(false);
+    });
+}
 
 
 
@@ -918,7 +962,7 @@ function getConversationId() {
         return formatted;
     }
 
-        // Sauvegarde l'historique de conversation dans le localStorage
+    // Sauvegarde l'historique de conversation dans le localStorage
     function saveChatHistory(history) {
         localStorage.setItem('chatHistory', JSON.stringify(history));
     }
@@ -1048,11 +1092,15 @@ function getConversationId() {
     
   
     function setupWidgetEvents() {
-        restoreChat();
-        const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+        const history = loadChatHistory();
         const popup = shadowRoot.getElementById("custom-popup-window");
-        // Fermer le popup au démarrage
-        popup.style.display = "none";
+        // Si l'historique n'est pas vide, restaure le chat
+        if (history.length > 0) {
+            restoreChat();
+        }
+        else{popup.style.display = "none"}
+        const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+        
 
         const toggleIcon = shadowRoot.getElementById("toggle-icon");
         const textarea = shadowRoot.getElementById("custom-popup-textarea");
@@ -1087,15 +1135,27 @@ function getConversationId() {
             }
         });
         
-        toggleButton.addEventListener("click", function() {
-            if (popup.style.display === "block") {
-                popup.style.display = "none";
-                toggleButton.classList.remove("red");
-                saveChatState("closed");
+        toggleButton.addEventListener("click", function () {
+            if (hasAcceptedConsent()) {
+                const popup = shadowRoot.getElementById("custom-popup-window");
+                if (popup.style.display === "block") {
+                    popup.style.display = "none";
+                    toggleButton.classList.remove("red");
+                    saveChatState("closed");
+                } else {
+                    popup.style.display = "block";
+                    toggleButton.classList.add("red");
+                    saveChatState("open");
+                }
             } else {
-                popup.style.display = "block";
-                toggleButton.classList.add("red");
-                saveChatState("open");
+                showConsentModal((accepted) => {
+                    if (accepted) {
+                        const popup = shadowRoot.getElementById("custom-popup-window");
+                        popup.style.display = "block";
+                        toggleButton.classList.add("red");
+                        saveChatState("open");
+                    }
+                });
             }
         });
         
