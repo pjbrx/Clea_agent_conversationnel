@@ -850,12 +850,12 @@ document.body.appendChild(script);
         //    On autorise les espaces avant l'astérisque/tiret et après.
         //    Chaque bloc de lignes sera converti en <ul> avec des <li>.
         text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function(match) {
-          const items = match
+            const items = match
             .split(/\r?\n/)
             .filter(item => item.trim() !== "")
             .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='word-break:break-word;'>") + "</li>")
             .join("");
-          return "<ul style='margin:8px 0;padding-left:20px;'>" + items + "</ul>";
+        return "<ul style='margin:8px 0;padding-left:20px;'>" + items + "</ul>";
         });
     
         // 7) Transforme le texte en gras avec **texte**
@@ -864,32 +864,40 @@ document.body.appendChild(script);
         // 8) Transforme le texte en italique avec *texte* 
         //    (sauf si l’astérisque est en début de ligne, car c'est déjà géré comme puce)
         text = text.replace(
-          /(^|[^*])\*([^*\n]+)\*(?!\*)/g, 
-          function(match, before, content) {
+            /(^|[^*])\*([^*\n]+)\*(?!\*)/g, 
+            function(match, before, content) {
             return before + "<em>" + content + "</em>";
-          }
+        }
         );
     
         // 9) Transforme les liens
         text = text.replace(/(?<!<a href=")((https?:\/\/|www\.)[^\s<]+)(?![^<]*<\/a>)/g, function(match) {
             let url = match.startsWith('http') ? match : 'https://' + match;
             return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
-          });
-          
+        });
+        
     
         // 10) Découpe le texte en paragraphes via le délimiteur "|||"
         let paragraphs = text
-          .split("|||")
-          .map(p => p.trim())
-          .filter(p => p.length > 0);
+        .split("|||")
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
     
         // Pour chaque paragraphe, on remplace le contenu entre crochets par <strong>
         paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
     
         // 11) Retourne le HTML, chaque paragraphe dans un <p>
         let formatted = paragraphs
-          .map(p => `<p style="margin:8px 0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;">${p}</p>`)
-          .join("");
+        .map(p => {
+            // Corrige l'affichage du chiffre + titre sur une ligne
+            p = p.replace(/^(\d+)\.\s*<strong>(.+?)<\/strong>/, (_, num, title) => `<strong>${num}. ${title}</strong>`);
+        
+            // Supprime les sauts de ligne indésirables après "URL:"
+            p = p.replace(/(URL:)\s*<a /g, '$1 <a ');
+        
+            return `<p style="margin:4px 0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;">${p}</p>`;
+        })        
+        .join("");
     
         // 12) Encapsule dans un conteneur .bot-content
         formatted = `<div class="bot-content" style="max-width:100%;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;">${formatted}</div>`;
@@ -921,7 +929,6 @@ document.body.appendChild(script);
         localStorage.setItem('chatState', state);
     }
 
-    
     function showFeedbackWindow() {    
         const widgetContainer = document.createElement("div");
         widgetContainer.style.position = "fixed";
@@ -1064,8 +1071,6 @@ document.body.appendChild(script);
                 s.style.color = i < value ? '#ffc107' : '#ccc';
             });
         }
-
-    
         shadow.getElementById('close-feedback').addEventListener('click', () => {
             document.body.removeChild(widgetContainer);
             
@@ -1115,8 +1120,6 @@ document.body.appendChild(script);
             }, 1000);
         });
     }
-    
-
     
     // Restaure l'état du chat
     function loadChatState() {
@@ -1294,7 +1297,7 @@ document.body.appendChild(script);
                             timestamp: new Date().toISOString(),
                             userAgent: navigator.userAgent,
                         };
-        
+
                         fetch("https://clea.app.n8n.cloud/webhook/feedback", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -1311,21 +1314,8 @@ document.body.appendChild(script);
                 toggleButton.classList.add("red");
                 saveChatState("open");
             }
-        });        
-
-        function linkify(text) {
-            // Regex simple pour capturer http/https ou "www." suivi de caractères non-espace
-            const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
-            return text.replace(urlRegex, (match) => {
-                // Au cas où le lien ne commence pas par http
-                let url = match.startsWith('http') ? match : 'https://' + match;
-                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
-            });
-        }
+        }); 
         
-        
-        
-
         async function sendMessage() {
             const messageText = textarea.value.trim();
             if (!messageText) {
@@ -1450,8 +1440,9 @@ document.body.appendChild(script);
                 const botMessageText = document.createElement("span");
                 botMessageText.textContent = "";
                 // Lancer l'animation avec le texte retourné par l'IA
-                animateText(botMessageText, data[0]?.output || "Je n'ai pas compris.", 10);
-                
+                const formatted = formatResponse(data[0]?.output || "Je n'ai pas compris.");
+                animateFormattedText(botMessageText, formatted, 5); // 5ms par caractère ≈ rapide, ajuste si besoin
+
                 botMessageContainer.appendChild(botMessageText);
                 botMessageWrapper.appendChild(botLogo);
                 botMessageWrapper.appendChild(botMessageContainer);
@@ -1470,36 +1461,51 @@ document.body.appendChild(script);
             }
         }
 
-        function animateText(element, text, interval = 15, callback) {
-            let index = 0;
-            let finalText = '';
-            const timer = setInterval(() => {
-                finalText += text.charAt(index);
-                // On met à jour le texte brut pour l'effet de frappe
-                element.textContent = finalText;
-                index++;
-                chatBody.scrollTop = chatBody.scrollHeight;
-                if (index === text.length) {
-                    clearInterval(timer);
-                    // On transforme d'abord le texte pour rendre les liens cliquables
-                    // const linkified = linkify(finalText);
-                    // Puis on applique la mise en forme en paragraphes
-                    const formatted = formatResponse(finalText);
-                    element.innerHTML = formatted;
+
+        function animateFormattedText(targetElement, rawText, delay = 10) {
+            const formatted = formatResponse(rawText); // Format HTML avec <p>, <strong>, <a>, etc.
+        
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = formatted;
+        
+            const blocks = Array.from(tempDiv.children); // Ex : <p>, <h2>, <ul>...
+        
+            let blockIndex = 0;
+        
+            function typeBlock() {
+                if (blockIndex >= blocks.length) return;
+        
+                const block = blocks[blockIndex];
+                const targetBlock = document.createElement(block.tagName.toLowerCase());
+                targetBlock.style.cssText = block.style.cssText;
+                targetBlock.className = block.className; // si tu utilises des classes
+        
+                targetElement.appendChild(targetBlock);
+        
+                const content = block.innerHTML;
+                let charIndex = 0;
+                let currentText = "";
+        
+                function typeChar() {
+                    if (charIndex >= content.length) {
+                        blockIndex++;
+                        setTimeout(typeBlock, 100); // Délai entre les blocs
+                        return;
+                    }
+        
+                    currentText += content[charIndex];
+                    targetBlock.innerHTML = currentText;
+                    charIndex++;
+                    setTimeout(typeChar, delay);
                 }
-            }, interval);
+        
+                typeChar();
+            }
+        
+            typeBlock();
         }
+            
         
-        
-        
-        
-        
-        
-        
-
-        
-        
-
         sendButton.addEventListener("click", sendMessage);
         textarea.addEventListener("keydown", function(event) {
             if (event.key === "Enter" && !event.shiftKey) {
@@ -1558,7 +1564,6 @@ document.body.appendChild(script);
             window.setTimeout(checkDOMReady, 100);
         }
     }
-
     // Lancer la vérification
     checkDOMReady();
 })();
