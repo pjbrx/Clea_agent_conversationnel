@@ -294,7 +294,7 @@ const widgetHTML = `
     <div id="popup-message" class="popup-container">
         <div class="popup-content">
             <span id="close-popup" class="popup-close">&times;</span>
-            <p class="popup-text">Une Question ?</p>
+            <p class="popup-text">Besoin d'aide ?</p>
             <p class="popup-text-normal">Discutez avec notre assistant IA</p>
             <div class="popup-header">
                 <div>

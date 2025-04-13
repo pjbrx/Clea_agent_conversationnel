@@ -279,7 +279,9 @@ const widgetHTML = `
                 A22.5,22 0 0 1 85,73
                 Z
             " fill="none" stroke="black" stroke-width="1"/>
-            <text x="48%" y="115" font-family="Arial, sans-serif" font-size="10" fill="rgba(0, 0, 0, 0.6)" text-anchor="middle" pointer-events="auto">
+
+            <!-- Crédit en bas du widget -->
+            <text x="55%" y="119" font-family="Arial, sans-serif" font-size="10" fill="rgba(0, 0, 0, 0.6)" text-anchor="middle" pointer-events="auto">
                 Conçu avec soin par 
                 <tspan font-weight="bold" fill="#007bff" text-decoration="underline">
                     <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" style="cursor: pointer; pointer-events: auto; text-decoration: underline; fill: #007bff;">
@@ -840,44 +842,135 @@ function hasAcceptedConsent() {
 }
 
 function showConsentModal(callback) {
-    const modal = document.createElement("div");
-    modal.style.position = "fixed";
-    modal.style.bottom = "110px"; // juste au-dessus du bouton
-    modal.style.right = "30px";
-    modal.style.background = "white";
-    modal.style.border = "1px solid #ddd";
-    modal.style.borderRadius = "10px";
-    modal.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.1)";
-    modal.style.padding = "16px";
-    modal.style.width = "280px";
-    modal.style.zIndex = "10010";
-    modal.style.fontFamily = "Arial, sans-serif";
+    if (document.getElementById("consent-modal-clea")) return;
+    const modalWrapper = document.createElement("div");
+    modalWrapper.id = "consent-modal-clea"; 
+    modalWrapper.style.position = "fixed";
+    modalWrapper.style.bottom = "110px";
+    modalWrapper.style.right = "30px";
+    modalWrapper.style.zIndex = "10012";
 
+    const shadow = modalWrapper.attachShadow({ mode: "open" });
+
+    const styles = `
+        .consent-box {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+            width: 300px;
+            padding: 18px;
+            font-family: Arial, sans-serif;
+            animation: fadeIn 0.3s ease;
+        }
+
+        h4 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        button {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+        }
+
+        #rejectConsent {
+            background: transparent;
+            border: 1px solid #ccc;
+            color: #333;
+        }
+
+        #acceptConsent {
+            background: #007bff;
+            color: white;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+        }
+
+        .popup-close:hover {
+            color: red;
+        }
+
+        .top-bar {
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+
+    const styleTag = document.createElement("style");
+    styleTag.textContent = styles;
+    shadow.appendChild(styleTag);
+
+    const modal = document.createElement("div");
+    modal.className = "consent-box";
     modal.innerHTML = `
-        <p style="margin-top: 0; font-weight: bold; font-size: 14px">Conditions d'utilisation</p>
-        <p style="font-size: 12px; margin-bottom: 12px">
-           Pour utiliser ce service, certaines données personnelles (par exemple : prénom, adresse e-mail, numéro de téléphone) peuvent être collectées et traitées afin de permettre à ExpansionTV de vous recontacter et d’assurer le suivi de votre demande. Ces données ne sont pas revendues, ni utilisées à des fins de prospection commerciale. Elles sont exclusivement utilisées dans le cadre de votre sollicitation. Vous pouvez accepter ou refuser librement cette utilisation.
+        <div class="top-bar">
+            <span class="popup-close" id="closeConsent">&times;</span>
+            <h4>Conditions d'utilisation</h4>
+        </div>
+        <p>
+            Pour utiliser ce service, certaines données personnelles (par exemple : prénom, adresse e-mail, numéro de téléphone) peuvent être collectées et traitées afin de permettre à ExpansionTV de vous recontacter et d’assurer le suivi de votre demande. Ces données ne sont pas revendues, ni utilisées à des fins de prospection commerciale. Elles sont exclusivement utilisées dans le cadre de votre sollicitation. Vous pouvez accepter ou refuser librement cette utilisation.
         </p>
-        <div style="display: flex; justify-content: flex-end; gap: 8px">
-            <button id="rejectConsent" style="background: transparent; border: 1px solid #ccc; border-radius: 4px; padding: 5px 10px; font-size: 12px; cursor: pointer">Refuser</button>
-            <button id="acceptConsent" style="background: #007bff; color: white; border: none; border-radius: 4px; padding: 5px 10px; font-size: 12px; cursor: pointer">Accepter</button>
+        <div class="buttons">
+            <button id="rejectConsent">Refuser</button>
+            <button id="acceptConsent">Accepter</button>
         </div>
     `;
 
-    document.body.appendChild(modal);
+    shadow.appendChild(modal);
+    document.body.appendChild(modalWrapper);
 
-    modal.querySelector("#acceptConsent").addEventListener("click", () => {
+    const removeModal = () => {
+        const existing = document.getElementById("consent-modal-clea");
+        if (existing) document.body.removeChild(existing);
+    };
+
+    shadow.getElementById("acceptConsent").addEventListener("click", () => {
         localStorage.setItem("chatDataConsent", "accepted");
-        document.body.removeChild(modal);
+        document.body.removeChild(modalWrapper);
         callback(true);
     });
 
-    modal.querySelector("#rejectConsent").addEventListener("click", () => {
+    shadow.getElementById("rejectConsent").addEventListener("click", () => {
         localStorage.setItem("chatDataConsent", "rejected");
-        document.body.removeChild(modal);
+        document.body.removeChild(modalWrapper);
+        callback(false);
+    });
+
+    shadow.getElementById("closeConsent").addEventListener("click", () => {
+        document.body.removeChild(modalWrapper);
         callback(false);
     });
 }
+
 
 
 
@@ -972,11 +1065,214 @@ function showConsentModal(callback) {
         const history = localStorage.getItem('chatHistory');
         return history ? JSON.parse(history) : [];
     }
+
+    function userHasSentMessageThisSession() {
+        const sessionMessages = sessionStorage.getItem("sessionUserMessages");
+        return sessionMessages === "true";
+    }
+    
+    
     
     // Sauvegarde l'état du chat (open/closed)
     function saveChatState(state) {
         localStorage.setItem('chatState', state);
     }
+
+    function showFeedbackWindow() {    
+        const widgetContainer = document.createElement("div");
+        widgetContainer.style.position = "fixed";
+        widgetContainer.style.bottom = "120px";
+        widgetContainer.style.right = "30px";
+        widgetContainer.style.zIndex = "10011";
+    
+        const shadow = widgetContainer.attachShadow({ mode: "open" });
+    
+        const styles = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+    
+            .popup-close {
+                position: relative;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                color: black;
+                user-select: none;
+            }
+            .popup-close:hover {
+                color: red;
+            }
+    
+            .feedback-box {
+                width: 340px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+                padding: 20px;
+                font-family: Arial, sans-serif;
+                animation: fadeIn 0.4s ease;
+            }
+    
+            h4 {
+                margin: 0;
+                font-size: 16px;
+            }
+    
+            p {
+                font-size: 13px;
+                color: #333;
+                margin-top: 8px;
+                margin-bottom: 12px;
+            }
+    
+            #feedback-stars span {
+                font-size: 20px;
+                color: #ccc;
+                cursor: pointer;
+            }
+    
+            #feedback-stars span.selected,
+            #feedback-stars span:hover,
+            #feedback-stars span:hover ~ span {
+                color: #ffc107;
+            }
+    
+            textarea {
+                width: 100%;
+                height: 70px;
+                padding: 8px;
+                font-size: 13px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                resize: none;
+            }
+    
+            button {
+                margin-top: 12px;
+                width: 100%;
+                padding: 10px;
+                background: #007bff;
+                color: white;
+                font-size: 14px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+    
+            .top-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        `;
+    
+        const styleTag = document.createElement("style");
+        styleTag.textContent = styles;
+        shadow.appendChild(styleTag);
+    
+        const container = document.createElement("div");
+        container.className = "feedback-box";
+        container.innerHTML = `
+            <div class="top-row">
+                <h4>Votre avis compte </h4>
+                <span class="popup-close" id="close-feedback">&times;</span>
+            </div>
+            <p> Vous venez d'échanger avec notre assistant <br>
+            Que pensez-vous de cette expérience ?<br>
+            Votre retour nous permet d'améliorer notre service.</p>
+            <div id="feedback-stars">
+                <span data-value="1">★</span>
+                <span data-value="2">★</span>
+                <span data-value="3">★</span>
+                <span data-value="4">★</span>
+                <span data-value="5">★</span>
+            </div>
+            <textarea id="feedback-comment" placeholder="Une suggestion, un point à améliorer ?"></textarea>
+            <button id="submit-feedback">Envoyer mon avis</button>
+        `;
+        shadow.appendChild(container);
+        document.body.appendChild(widgetContainer);
+    
+        // Logique JS dans le shadow
+        let selectedRating = 0;
+        const stars = container.querySelectorAll('#feedback-stars span');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', () => {
+                const val = parseInt(star.dataset.value);
+                updateStars(val); // Highlight les étoiles au survol
+            });
+
+            star.addEventListener('mouseout', () => {
+                updateStars(selectedRating); // Restaure l'état sélectionné
+            });
+
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.value);
+                updateStars(selectedRating);
+            });
+        });
+
+        function updateStars(value) {
+            stars.forEach((s, i) => {
+                s.style.color = i < value ? '#ffc107' : '#ccc';
+            });
+        }
+
+    
+        shadow.getElementById('close-feedback').addEventListener('click', () => {
+            document.body.removeChild(widgetContainer);
+            
+        });
+    
+        // Ajouter un petit message de feedback
+        const messageBox = document.createElement("div");
+        messageBox.style.fontSize = "12px";
+        messageBox.style.marginTop = "8px";
+        messageBox.style.display = "none";
+        shadow.appendChild(messageBox);
+
+        shadow.getElementById('submit-feedback').addEventListener('click', () => {
+            const comment = shadow.getElementById('feedback-comment').value.trim();
+
+            if (selectedRating === 0) {
+                messageBox.textContent = "Merci de choisir une note avant d’envoyer votre avis.";
+                messageBox.style.color = "red";
+                messageBox.style.display = "block";
+                return;
+            }
+
+            const feedback = {
+                rating: selectedRating,
+                comment,
+                page: window.location.href,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+
+            fetch("https://clea.app.n8n.cloud/webhook/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(feedback)
+            });
+
+            messageBox.textContent = "Merci! Votre retour a bien été envoyé.";
+            messageBox.style.color = "green";
+            messageBox.style.display = "block";
+
+            // Marquer la fin de session
+            sessionStorage.setItem("sessionUserMessages", "false");
+
+            // Supprimer la fenêtre de feedback après 2 secondes
+            setTimeout(() => {
+                document.body.removeChild(widgetContainer);
+            }, 1000);
+        });
+    }
+    
+    
     
     // Restaure l'état du chat
     function loadChatState() {
@@ -1136,16 +1432,51 @@ function showConsentModal(callback) {
         });
         
         toggleButton.addEventListener("click", function () {
+            let feedbackDisplayedOnce = false;
             if (hasAcceptedConsent()) {
                 const popup = shadowRoot.getElementById("custom-popup-window");
                 if (popup.style.display === "block") {
                     popup.style.display = "none";
                     toggleButton.classList.remove("red");
                     saveChatState("closed");
+                    if (userHasSentMessageThisSession()) {
+                        showFeedbackWindow();
+                    }
+                    
                 } else {
                     popup.style.display = "block";
                     toggleButton.classList.add("red");
                     saveChatState("open");
+                    // Vérifie si une fenêtre de feedback existe dans le DOM principal
+                    const feedbackWidgetWrapper = document.querySelector("div[style*='z-index: 10011']"); // wrapper contenant le shadowRoot du feedback
+                    if (feedbackWidgetWrapper && feedbackWidgetWrapper.shadowRoot) {
+                        const feedbackShadow = feedbackWidgetWrapper.shadowRoot;
+                        const comment = feedbackShadow.querySelector("#feedback-comment").value.trim();
+                        const rating = [...feedbackShadow.querySelectorAll("#feedback-stars span")]
+                            .filter(star => star.style.color === "rgb(255, 193, 7)")
+                            .length;
+
+                        if (comment || rating > 0) {
+                            const feedback = {
+                                rating,
+                                comment,
+                                page: window.location.href,
+                                timestamp: new Date().toISOString(),
+                                userAgent: navigator.userAgent,
+                            };
+
+                            fetch("https://clea.app.n8n.cloud/webhook/feedback", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(feedback)
+                            });
+                        }
+
+                        // Supprime la fenêtre de feedback du DOM
+                        feedbackWidgetWrapper.remove();
+                        sessionStorage.setItem("feedbackGiven", "true");
+                    }
+
                 }
             } else {
                 showConsentModal((accepted) => {
@@ -1179,7 +1510,7 @@ function showConsentModal(callback) {
             if (!messageText) {
                 return;
             }
-            
+            sessionStorage.setItem("sessionUserMessages", "true");
             let history = loadChatHistory();
             const userMsg = {
                 sender: "user",
@@ -1381,6 +1712,9 @@ function showConsentModal(callback) {
         shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
             shadowRoot.getElementById("custom-popup-window").style.display = "none";
             saveChatState("closed");
+            if (userHasSentMessageThisSession()) {
+                showFeedbackWindow();
+            }
             // Rétablir l'état du bouton de chat
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.remove("red");
@@ -1395,6 +1729,7 @@ function showConsentModal(callback) {
     // Fonction qui vérifie si le DOM est prêt
     function checkDOMReady() {
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            sessionStorage.setItem("sessionUserMessages", "false");
             setupWidgetEvents();
         } else {
             window.setTimeout(checkDOMReady, 100);
