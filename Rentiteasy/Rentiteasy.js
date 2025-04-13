@@ -910,11 +910,213 @@ document.body.appendChild(script);
         const history = localStorage.getItem('chatHistory');
         return history ? JSON.parse(history) : [];
     }
+
+    function userHasSentMessageThisSession() {
+        const sessionMessages = sessionStorage.getItem("sessionUserMessages");
+        return sessionMessages === "true";
+    }
     
     // Sauvegarde l'état du chat (open/closed)
     function saveChatState(state) {
         localStorage.setItem('chatState', state);
     }
+
+    
+    function showFeedbackWindow() {    
+        const widgetContainer = document.createElement("div");
+        widgetContainer.style.position = "fixed";
+        widgetContainer.style.bottom = "120px";
+        widgetContainer.style.right = "30px";
+        widgetContainer.style.zIndex = "10011";
+    
+        const shadow = widgetContainer.attachShadow({ mode: "open" });
+    
+        const styles = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+    
+            .popup-close {
+                position: relative;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                color: black;
+                user-select: none;
+            }
+            .popup-close:hover {
+                color: red;
+            }
+    
+            .feedback-box {
+                width: 340px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+                padding: 20px;
+                font-family: Arial, sans-serif;
+                animation: fadeIn 0.4s ease;
+            }
+    
+            h4 {
+                margin: 0;
+                font-size: 16px;
+            }
+    
+            p {
+                font-size: 13px;
+                color: #333;
+                margin-top: 8px;
+                margin-bottom: 12px;
+            }
+    
+            #feedback-stars span {
+                font-size: 20px;
+                color: #ccc;
+                cursor: pointer;
+            }
+    
+            #feedback-stars span.selected,
+            #feedback-stars span:hover,
+            #feedback-stars span:hover ~ span {
+                color: #ffc107;
+            }
+    
+            textarea {
+                width: 100%;
+                height: 70px;
+                padding: 8px;
+                font-size: 13px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                resize: none;
+            }
+    
+            button {
+                margin-top: 12px;
+                width: 100%;
+                padding: 10px;
+                background: #007bff;
+                color: white;
+                font-size: 14px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+    
+            .top-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        `;
+    
+        const styleTag = document.createElement("style");
+        styleTag.textContent = styles;
+        shadow.appendChild(styleTag);
+    
+        const container = document.createElement("div");
+        container.className = "feedback-box";
+        container.innerHTML = `
+            <div class="top-row">
+                <h4>Votre avis compte </h4>
+                <span class="popup-close" id="close-feedback">&times;</span>
+            </div>
+            <p> Vous venez d'échanger avec notre assistant <br>
+            Que pensez-vous de cette expérience ?<br>
+            Votre retour nous permet d'améliorer notre service.</p>
+            <div id="feedback-stars">
+                <span data-value="1">★</span>
+                <span data-value="2">★</span>
+                <span data-value="3">★</span>
+                <span data-value="4">★</span>
+                <span data-value="5">★</span>
+            </div>
+            <textarea id="feedback-comment" placeholder="Une suggestion, un point à améliorer ?"></textarea>
+            <button id="submit-feedback">Envoyer mon avis</button>
+        `;
+        shadow.appendChild(container);
+        document.body.appendChild(widgetContainer);
+    
+        // Logique JS dans le shadow
+        let selectedRating = 0;
+        const stars = container.querySelectorAll('#feedback-stars span');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', () => {
+                const val = parseInt(star.dataset.value);
+                updateStars(val); // Highlight les étoiles au survol
+            });
+
+            star.addEventListener('mouseout', () => {
+                updateStars(selectedRating); // Restaure l'état sélectionné
+            });
+
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.value);
+                updateStars(selectedRating);
+            });
+        });
+
+        function updateStars(value) {
+            stars.forEach((s, i) => {
+                s.style.color = i < value ? '#ffc107' : '#ccc';
+            });
+        }
+
+    
+        shadow.getElementById('close-feedback').addEventListener('click', () => {
+            document.body.removeChild(widgetContainer);
+            
+        });
+    
+        // Ajouter un petit message de feedback
+        const messageBox = document.createElement("div");
+        messageBox.style.fontSize = "12px";
+        messageBox.style.marginTop = "8px";
+        messageBox.style.display = "none";
+        shadow.appendChild(messageBox);
+
+        shadow.getElementById('submit-feedback').addEventListener('click', () => {
+            const comment = shadow.getElementById('feedback-comment').value.trim();
+
+            if (selectedRating === 0) {
+                messageBox.textContent = "Merci de choisir une note avant d’envoyer votre avis.";
+                messageBox.style.color = "red";
+                messageBox.style.display = "block";
+                return;
+            }
+
+            const feedback = {
+                rating: selectedRating,
+                comment,
+                page: window.location.href,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+
+            fetch("https://clea.app.n8n.cloud/webhook/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(feedback)
+            });
+
+            messageBox.textContent = "Merci! Votre retour a bien été envoyé.";
+            messageBox.style.color = "green";
+            messageBox.style.display = "block";
+
+            // Marquer la fin de session
+            sessionStorage.setItem("sessionUserMessages", "false");
+
+            // Supprimer la fenêtre de feedback après 2 secondes
+            setTimeout(() => {
+                document.body.removeChild(widgetContainer);
+            }, 1000);
+        });
+    }
+    
+
     
     // Restaure l'état du chat
     function loadChatState() {
@@ -1062,17 +1264,54 @@ document.body.appendChild(script);
             }
         });
         
-        toggleButton.addEventListener("click", function() {
+        toggleButton.addEventListener("click", function () {
+            const popup = shadowRoot.getElementById("custom-popup-window");
+        
             if (popup.style.display === "block") {
                 popup.style.display = "none";
                 toggleButton.classList.remove("red");
                 saveChatState("closed");
+        
+                // → Si l'utilisateur a envoyé un message durant cette session, on affiche la fenêtre de feedback
+                if (userHasSentMessageThisSession()) {
+                    showFeedbackWindow();
+                }
+        
+                // → S'il y a déjà une fenêtre de feedback visible, on capture et envoie les données, puis on supprime
+                const feedbackWidgetWrapper = document.querySelector("div[style*='z-index: 10011']");
+                if (feedbackWidgetWrapper && feedbackWidgetWrapper.shadowRoot) {
+                    const feedbackShadow = feedbackWidgetWrapper.shadowRoot;
+                    const comment = feedbackShadow.querySelector("#feedback-comment").value.trim();
+                    const rating = [...feedbackShadow.querySelectorAll("#feedback-stars span")]
+                        .filter(star => star.style.color === "rgb(255, 193, 7)")
+                        .length;
+        
+                    if (comment || rating > 0) {
+                        const feedback = {
+                            rating,
+                            comment,
+                            page: window.location.href,
+                            timestamp: new Date().toISOString(),
+                            userAgent: navigator.userAgent,
+                        };
+        
+                        fetch("https://clea.app.n8n.cloud/webhook/feedback", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(feedback)
+                        });
+                    }
+        
+                    feedbackWidgetWrapper.remove();
+                    sessionStorage.setItem("feedbackGiven", "true");
+                }
+        
             } else {
                 popup.style.display = "block";
                 toggleButton.classList.add("red");
                 saveChatState("open");
             }
-        });
+        });        
 
         function linkify(text) {
             // Regex simple pour capturer http/https ou "www." suivi de caractères non-espace
@@ -1092,7 +1331,7 @@ document.body.appendChild(script);
             if (!messageText) {
                 return;
             }
-
+            sessionStorage.setItem("sessionUserMessages", "true");
             let history = loadChatHistory();
             const userMsg = {
                 sender: "user",
@@ -1296,6 +1535,9 @@ document.body.appendChild(script);
             shadowRoot.getElementById("custom-popup-window").style.display = "none";
             // Mettre à jour l'état sauvegardé
             saveChatState("closed");
+            if (userHasSentMessageThisSession()) {
+                showFeedbackWindow();
+            }
             // Rétablir l'état du bouton de chat
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.remove("red");
@@ -1310,6 +1552,7 @@ document.body.appendChild(script);
     // Fonction qui vérifie si le DOM est prêt
     function checkDOMReady() {
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            sessionStorage.setItem("sessionUserMessages", "false");
             setupWidgetEvents();
         } else {
             window.setTimeout(checkDOMReady, 100);
