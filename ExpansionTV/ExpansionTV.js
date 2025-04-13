@@ -976,82 +976,76 @@ function showConsentModal(callback) {
 
 
     function formatResponse(text) {
-        // 1) Supprime la chaîne "```markdown" pour éviter qu'elle apparaisse
+        // 1) Supprime la chaîne "```markdown"
         text = text.replace(/```markdown/g, "```");
         text = text.trim();
-        // 2) Supprime tous les emojis courants (Unicode)
+
+        // 2) Supprime les emojis
         text = text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "");
-    
-        // 3) Transforme les blocs de code
+
+        // 3) Blocs de code
         text = text.replace(
-          /```([\s\S]*?)```/g,
-          "<pre style='white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;'><code>$1</code></pre>"
+            /```([\s\S]*?)```/g,
+            "<pre style='font-family: Arial, sans-serif; white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;'><code>$1</code></pre>"
         );
-    
-        // 4) Transforme les titres (H1 à H6)
-        text = text.replace(/^######\s*(.+)$/gm, "<h6 style='margin:8px 0;word-break:break-word;'>$1</h6>");
-        text = text.replace(/^#####\s*(.+)$/gm, "<h5 style='margin:8px 0;word-break:break-word;'>$1</h5>");
-        text = text.replace(/^####\s*(.+)$/gm, "<h4 style='margin:8px 0;word-break:break-word;'>$1</h4>");
-        text = text.replace(/^###\s*(.+)$/gm, "<h3 style='margin:8px 0;word-break:break-word;'>$1</h3>");
-        text = text.replace(/^##\s*(.+)$/gm, "<h2 style='margin:8px 0;word-break:break-word;'>$1</h2>");
-        text = text.replace(/^#\s*(.+)$/gm, "<h1 style='margin:8px 0;word-break:break-word;'>$1</h1>");
-    
-        // 5) Transforme les citations
+
+        // 4) Titres H1 à H6
+        text = text.replace(/^######\s*(.+)$/gm, "<h6 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h6>");
+        text = text.replace(/^#####\s*(.+)$/gm, "<h5 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h5>");
+        text = text.replace(/^####\s*(.+)$/gm, "<h4 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h4>");
+        text = text.replace(/^###\s*(.+)$/gm, "<h3 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h3>");
+        text = text.replace(/^##\s*(.+)$/gm, "<h2 style='font-family: Arial, sans-serif; margin:0; word-break:break-word;'>$1</h2>");
+        text = text.replace(/^#\s*(.+)$/gm, "<h1 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h1>");
+
+        // 5) Citations
         text = text.replace(
-          /^>\s*(.+)$/gm,
-          "<blockquote style='margin:8px 0;padding-left:10px;border-left:3px solid #ccc;word-break:break-word;'>$1</blockquote>"
+            /^>\s*(.+)$/gm,
+            "<blockquote style='font-family: Arial, sans-serif; margin:8px 0;padding-left:10px;border-left:3px solid #ccc;word-break:break-word;'>$1</blockquote>"
         );
-    
-        // 6) Transforme les lignes commençant par * ou - en listes à puces
-        //    On autorise les espaces avant l'astérisque/tiret et après.
-        //    Chaque bloc de lignes sera converti en <ul> avec des <li>.
-        text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function(match) {
-          const items = match
-            .split(/\r?\n/)
-            .filter(item => item.trim() !== "")
-            .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='word-break:break-word;'>") + "</li>")
-            .join("");
-          return "<ul style='margin:8px 0;padding-left:20px;'>" + items + "</ul>";
+
+        // 6) Listes à puces
+        text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function (match) {
+            const items = match
+                .split(/\r?\n/)
+                .filter(item => item.trim() !== "")
+                .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='font-family: Arial, sans-serif; word-break:break-word;'>") + "</li>")
+                .join("");
+            return "<ul style='font-family: Arial, sans-serif; margin:8px 0;padding-left:20px;'>" + items + "</ul>";
         });
-    
-        // 7) Transforme le texte en gras avec **texte**
+
+        // 7) Texte en gras
         text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    
-        // 8) Transforme le texte en italique avec *texte* 
-        //    (sauf si l’astérisque est en début de ligne, car c'est déjà géré comme puce)
-        text = text.replace(
-          /(^|[^*])\*([^*\n]+)\*(?!\*)/g, 
-          function(match, before, content) {
+
+        // 8) Italique
+        text = text.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, function (match, before, content) {
             return before + "<em>" + content + "</em>";
-          }
-        );
-    
-        // 9) Transforme les liens
-        text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function(match) {
-          let url = match.startsWith('http') ? match : 'https://' + match;
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
         });
-    
-        // 10) Découpe le texte en paragraphes via le délimiteur "|||"
+
+        // 9) Liens
+        text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function (match) {
+            let url = match.startsWith('http') ? match : 'https://' + match;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="font-family: Arial, sans-serif; word-break:break-all;">${match}</a>`;
+        });
+
+        // 10) Paragraphes
         let paragraphs = text
-          .split("|||")
-          .map(p => p.trim())
-          .filter(p => p.length > 0);
-    
-        // Pour chaque paragraphe, on remplace le contenu entre crochets par <strong>
+            .split("|||")
+            .map(p => p.trim())
+            .filter(p => p.length > 0);
+
         paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
-    
-        // 11) Retourne le HTML, chaque paragraphe dans un <p>
+
         let formatted = paragraphs
-          .map(p => `<p style="margin:8px 0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;">${p}</p>`)
-          .join("");
-    
-        // 12) Encapsule dans un conteneur .bot-content
-        formatted = `<div class="bot-content" style="max-width:100%;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;">${formatted}</div>`;
-    
-        // 13) Évite qu'une ponctuation se retrouve en début de ligne
+        .map(p => `<p style="font-family: Arial, sans-serif; font-size: 17px; line-height: 1.6; margin:0 0 8px 0; word-break:break-word; overflow-wrap:break-word; white-space:pre-wrap; max-width:100%;">${p}</p>`)
+        .join("");
+
+
+        // 11) Conteneur global
+        formatted = `<div class="bot-content" style="font-family: Arial, sans-serif; font-size: 17px; max-width:100%; word-break:break-word; overflow-wrap:break-word; white-space:pre-wrap;">${formatted}</div>`;
+
+        // 12) Ponctuation
         formatted = formatted.replace(/(\w)\s+([,.!?;:]+)/g, "$1&nbsp;$2");
-    
+
         return formatted;
     }
 
@@ -1432,7 +1426,6 @@ function showConsentModal(callback) {
         });
         
         toggleButton.addEventListener("click", function () {
-            let feedbackDisplayedOnce = false;
             if (hasAcceptedConsent()) {
                 const popup = shadowRoot.getElementById("custom-popup-window");
                 if (popup.style.display === "block") {
@@ -1649,31 +1642,47 @@ function showConsentModal(callback) {
             }
         }
 
-        function animateText(element, text, interval = 15, callback) {
-            let index = 0;
-            let finalText = '';
-            const timer = setInterval(() => {
-                finalText += text.charAt(index);
-                // On met à jour le texte brut pour l'effet de frappe
-                element.textContent = finalText;
-                index++;
-                chatBody.scrollTop = chatBody.scrollHeight;
-                if (index === text.length) {
-                    clearInterval(timer);
-                    // On transforme d'abord le texte pour rendre les liens cliquables
-                    const linkified = linkify(finalText);
-                    // Puis on applique la mise en forme en paragraphes
-                    const formatted = formatResponse(linkified);
-                    element.innerHTML = formatted;
+        function animateText(element, rawText, interval = 10) {
+            const formatted = formatResponse(rawText);
+        
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = formatted;
+        
+            const blocks = Array.from(tempDiv.children); // blocs HTML (p, h1, ul…)
+        
+            let blockIndex = 0;
+        
+            function typeBlock() {
+                if (blockIndex >= blocks.length) return;
+        
+                const block = blocks[blockIndex];
+                const targetBlock = document.createElement(block.tagName.toLowerCase());
+                targetBlock.style.cssText = block.style.cssText;
+        
+                element.appendChild(targetBlock);
+        
+                const content = block.innerHTML;
+                let charIndex = 0;
+                let currentText = "";
+        
+                function typeChar() {
+                    if (charIndex >= content.length) {
+                        blockIndex++;
+                        setTimeout(typeBlock, 200); // Petit délai entre blocs
+                        return;
+                    }
+        
+                    currentText += content[charIndex];
+                    targetBlock.innerHTML = currentText;
+                    charIndex++;
+                    setTimeout(typeChar, interval);
                 }
-            }, interval);
+        
+                typeChar();
+            }
+        
+            typeBlock();
         }
-        
-        
-        
-        
-        
-        
         
 
         
